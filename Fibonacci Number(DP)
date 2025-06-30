@@ -1,0 +1,67 @@
+PROBLEM: The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is,
+
+F(0) = 0, F(1) = 1
+F(n) = F(n - 1) + F(n - 2), for n > 1.
+Given n, calculate F(n).
+
+                                                                                    APPROACH 1:
+STEP BY STEP PROCESS: (MEMOIZATION): TIME COMPLEXITY= O(N) , SPACE COMPLEXITY= O(N)+O(N)
+1.  declare an array dp[] of size n+1 to include n as an index and initialise all index with value=-1
+2. CHeck if subproblem has already been solved, if yes then return the result from the array then only to avoid unnecessary computations
+3.  Otherwise do your recursive work and save answer in dp[] array.
+
+CODE:
+(USING DP)
+
+class Solution {
+    public int fib(int n) {
+        int[] dp= new int[n+1];
+        for(int i=0; i<=n; i++){
+            dp[i] =-1;
+        }
+        return helper(n, dp);
+    }
+    public int helper(int n, int[] dp){
+        if(n==0 || n==1)    return n;
+        if(dp[n]!=-1)   return dp[n];
+        return dp[n]= helper(n-1, dp)+helper(n-2, dp);
+    }
+}
+
+
+                                                            APPROACH 2.           TABULATION : OPTIMIZING RECURSION STACK SPACE BY OPTING FOR ITERATION AND USING ARRAY
+                                                                                                        space complexity= O(N)
+class Solution {
+    //tc= O(n)
+    //sc= O(n)
+    public int fib(int n) {
+        if(n==0|| n==1) return n;
+        int[] dp= new int[n+1];
+        dp[0]=0;
+        dp[1]=1;
+        for(int i=2; i<=n; i++){
+            dp[i]= dp[i-1]+dp[i-2];
+        }
+        return dp[n];
+    }
+    
+}
+
+                                                              APPROACH 3.                            OPTIMIZING O(N) EXTRA SPACE (INTUITIVE SOLUTION)
+                                                                                                                        space complexity= O(1)
+                                                                                                                        time complexity= O(N)
+class Solution {
+    //tc= O(n)
+    //sc= O(1)
+    public int fib(int n) {
+        if(n==0 || n==1)    return n;
+        int prev=1, prev2=0;
+        for(int i=2; i<=n; i++){
+            int curi= prev+prev2;
+            prev2= prev;
+            prev= curi;
+        }
+        return prev;
+    }
+    
+}
