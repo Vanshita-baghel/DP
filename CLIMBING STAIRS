@@ -1,0 +1,26 @@
+PROBLEM:
+You are climbing a staircase. It takes n steps to reach the top.
+
+Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+
+TIME COMPLEXITY: O(N)
+SPACE COMPLEXITY: O(N)
+
+CODE:
+
+class Solution {
+    public int climbStairs(int n) {
+        int[] sum= new int[n+1];
+        for(int i=0; i<=n; i++){
+            sum[i]= -1;
+        }
+        return solve(n,sum, 0);
+    }
+    public int solve(int n, int[] sum, int currSum){
+        if(currSum >n)  return 0;
+        if(currSum == n)    return sum[currSum]=1;
+        if(sum[currSum]!= -1)   return sum[currSum];
+        return sum[currSum]= solve(n, sum, currSum+1) + solve(n, sum, currSum+2);
+    }
+}
