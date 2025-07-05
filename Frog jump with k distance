@@ -1,0 +1,58 @@
+FOLLOW UP of Frog Jump
+Problem statement
+There is a frog on the '1st' step of an 'N' stairs long staircase. The frog wants to reach the 'Nth' stair. 'HEIGHT[i]' is the height of the '(i+1)th' stair.If Frog jumps from 'ith' to 'jth' stair, the energy lost in the jump is given by absolute value of ( HEIGHT[i-1] - HEIGHT[j-1] ). If the Frog is on 'ith' staircase, he can jump k stair. Your task is to find the minimum total energy used by the frog to reach from '1st' stair to 'Nth' stair.
+
+Solution:
+
+                                                                                    APPROACH 1:  RECURSION
+                                                                                    Time Complexity = O(kⁿ) 
+int f(int ind, int k, int[] ht){
+if(ind==0)  return 0;
+int minJump= Integer.MAX_VALUE;
+for(int j=1; j<=k; j++){
+  int jump= f(ind-j,k, ht)+ Math.abs(ht[ind]-ht[ind-j]);
+  minJump= Math.min(minJump, jump);
+}
+return minJump;
+}
+
+                                                                                    APPROACH 2: MEMOIZATION
+                                                                                  time complexity= O(N * k)
+                                                                                  space complexity= O(n)+O(n)
+int f(int ind, int k, int[] ht, int[] dp){
+if(ind==0)  return 0;
+if(dp[ind]!=-1) return dp[ind];
+int minJump= Integer.MAX_VALUE;
+for(int j=1; j<=k; j++){
+  int jump= f(ind-j,k, ht, dp)+ Math.abs(ht[ind]-ht[ind-j], dp);
+  minJump= Math.min(minJump, jump);
+}
+return dp[ind]= minJump;
+}
+
+                                                                                APPROACH 3:  TABULATION
+                                                                              TIME COMPLEXITY= O(N*K)
+`                                                                              SPACE COMPLEXITY= O(n)
+int f(int[] ht, int k, int n){
+int[] dp= new int[n];
+dp[0]=0;
+for(int i=1; i<n; i++){
+  int minSteps= Integer.MAX_VALUE;
+  for(int j=1; j<=k; j++){
+    if(i-j >=0){
+      int jump= dp[i-j]+Math.abs(ht[i]-ht[i-j]);
+      minSteps= Math.min(minSteps, jump);
+    }
+    else  break;
+  }
+  dp[i]= minSteps;
+}
+return dp[n-1];
+}
+
+
+
+
+
+
+}
