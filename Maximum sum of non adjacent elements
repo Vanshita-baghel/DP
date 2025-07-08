@@ -1,0 +1,92 @@
+Problem statement
+You are given an array/list of ‘N’ integers. You are supposed to return the maximum sum of the subsequence with the constraint that no two elements are adjacent in the given array/list.
+
+SOLUTION:
+
+                                                                        APPROACH 1: RECURSION
+                                                                          TIME COMPLEXITY: O(2^N)
+                                                                          SPACE COMPLEXITY: O(N)
+import java.util.* ;
+import java.io.*; 
+import java.util.*;
+public class Solution {
+	public static int maximumNonAdjacentSum(ArrayList<Integer> nums) {
+		// Write your code here.
+		return solve(nums, nums.size() -1);
+
+	}
+	public static int solve(ArrayList<Integer> nums, int ind){
+		if(ind==0)	return nums.get(0);
+		if(ind<0)	return 0;
+		int pick= nums.get(ind)+ solve(nums, ind-2);
+		int notPick= solve(nums, ind-1);
+		return Math.max(pick, notPick);
+	}
+}
+                                                                        APPROACH 2: MEMOIZATION
+                                                                          TIME COMPLEXITY: O(N)
+                                                                          SPACE COMPLEXITY: O(N) + O(N)
+import java.util.* ;
+import java.io.*; 
+import java.util.*;
+public class Solution {
+	public static int maximumNonAdjacentSum(ArrayList<Integer> nums) {
+		// Write your code here.
+		int[] dp= new int[nums.size()];
+		Arrays.fill(dp, -1);
+		return solve(nums, nums.size() -1, dp);
+
+	}
+	public static int solve(ArrayList<Integer> nums, int ind, int[] dp){
+		if(ind==0)	return nums.get(0);
+		if(ind<0)	return 0;
+		if(dp[ind]!= -1)	return dp[ind];
+		int pick= nums.get(ind)+ solve(nums, ind-2, dp);
+		int notPick= solve(nums, ind-1, dp);
+		return dp[ind]=Math.max(pick, notPick);
+	}
+}
+
+                                                                        APPROACH 3: TABULATION
+                                                                        TIME COMPLEXITY: O(N)
+                                                                        SPACE COMPLEXITY: O(N)
+import java.util.* ;
+import java.io.*; 
+import java.util.*;
+public class Solution {
+	public static int maximumNonAdjacentSum(ArrayList<Integer> nums) {
+		// Write your code here.
+		int[] dp= new int[nums.size()];
+		dp[0]= nums.get(0);
+		for(int i=1; i<nums.size(); i++){
+			int pick= nums.get(i);
+			if(i>1)	pick+= dp[i-2];
+			int notPick= dp[i-1];
+			dp[i]= Math.max(pick, notPick);
+		}
+		return dp[nums.size()-1];
+	}
+}
+
+                                                                  APPROACH 4: SPACE OPTIMISATION
+                                                                  TIME COMPLEXITY: O(N)
+                                                                  SPACE COMPLEXITY : O(1)
+import java.util.* ;
+import java.io.*; 
+import java.util.*;
+public class Solution {
+	public static int maximumNonAdjacentSum(ArrayList<Integer> nums) {
+		// Write your code here.
+		int prev=nums.get(0), prev2=0;
+		for(int i=1; i<nums.size(); i++){
+			int pick= nums.get(i);
+			if(i>1)	pick+= prev2;
+			int notPick= prev;
+			int curi= Math.max(pick, notPick);
+			prev2= prev;
+			prev= curi;
+		}
+		return prev;
+	}
+}
+                                                                  
