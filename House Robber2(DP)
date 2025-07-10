@@ -1,0 +1,55 @@
+PROBLEM STATEMENT:
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Meanwhile, adjacent houses have a security system connected, and it will automatically contact the police if two adjacent houses were broken into on the same night.
+
+Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.
+
+SOLUTION:
+
+                                                                                      APPROACH 1:  MEMOIZATION
+class Solution {
+    public int rob(int[] nums) {
+        if(nums.length==1)  return nums[0];
+        int[] dp= new int[nums.length];
+        Arrays.fill(dp, -1);
+        int[] dp2= new int[nums.length];
+        Arrays.fill(dp2, -1);
+        return Math.max(solve(nums, nums.length-2, dp, 0), solve2(nums, nums.length-1, dp2, 1));
+    }
+    public int solve(int[] nums, int ind, int[] dp, int start){
+        if(ind<start)   return 0;
+        if(dp[ind]!=-1) return dp[ind];
+        int pick= nums[ind] + solve(nums, ind-2, dp, start);
+        int notPick= solve(nums, ind-1, dp, start);
+        return dp[ind]= Math.max(pick, notPick);
+    }
+    public int solve2(int[] nums, int ind, int[] dp2, int start){
+        if(ind<start)  return 0;
+        if(dp2[ind]!=-1) return dp2[ind];
+        int pick= nums[ind] + solve(nums, ind-2, dp2, start);
+        int notPick= solve(nums, ind-1, dp2, start);
+        return dp2[ind]= Math.max(pick, notPick);
+    }
+}
+
+                                                                                  APPROACH 2: SPACE OPTIMSATION
+class Solution {
+    public int rob(int[] nums) {
+        int n= nums.length;
+        if(nums.length==1)  return nums[0];
+        return Math.max(solve(nums, 0, n-2), solve(nums, 1, n-1));
+    }
+    public int solve(int[] nums, int start, int end) {
+		// Write your code here.
+		int prev=0, prev2=0;
+        
+		for(int i=start; i<=end; i++){
+			int pick= nums[i];
+			if(i>1)	pick+= prev2;
+			int notPick= prev;
+			int curi= Math.max(pick, notPick);
+			prev2= prev;
+			prev= curi;
+		}
+		return prev;
+	}
+}
