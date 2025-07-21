@@ -1,0 +1,145 @@
+PROBLEM STATEMENT:
+Given an n x n array of integers matrix, return the minimum sum of any falling path through matrix.
+
+A falling path starts at any element in the first row and chooses the element in the next row that is either directly below or diagonally left/right. Specifically, the next element from position (row, col) will be (row + 1, col - 1), (row + 1, col), or (row + 1, col + 1).
+
+SOLUTION:
+
+                                                                                          APPROACH 1: RECURSION
+                                                                                        TIME COMPLEXITY: O(3^(N^2))
+                                                                                        SPACE COMPLEXITY: O(N) for stack space
+class Solution {
+    //recursive approach
+    //time complexity: O(3^(n))
+    //spacce complexity: O(n) fro stack space
+    public int minFallingPathSum(int[][] matrix) {
+        int minPath= Integer.MAX_VALUE;
+        for(int i=0; i<matrix[0].length; i++){
+            minPath= Math.min(minPath, f(0,i, matrix));
+        }
+        return minPath;
+    }
+    public int f(int i, int j, int[][] matrix){
+        if(j>matrix[0].length-1 || j<0)    return Integer.MAX_VALUE;
+        if(i== matrix.length-1 && j<matrix[0].length)   return matrix[i][j];
+
+        int diagonalLeft= f(i+1, j-1, matrix);
+        int down= f(i+1, j, matrix);
+        int diagonalRight= f(i+1, j+1, matrix);
+
+        int mini= Math.min(diagonalLeft, Math.min(down, diagonalRight));
+
+        return matrix[i][j]+ mini;
+    }
+}
+                                                                                        APPROACH 2: MEMOIZATION
+                                                                                        TIME COMPLEXITY: O(N^2)
+                                                                                        SPACE COMPLEXITY: O(N) for stack space + O(N^2) for dp array
+import java.util.Arrays;
+
+class Solution {
+    //memoization approach
+    //time complexity: O(n^2)
+    //spacce complexity: O(n) for stack space + O(n) for dp array
+    public int minFallingPathSum(int[][] matrix) {
+        int m= matrix.length;
+        int n= matrix[0].length;
+
+        int[][] dp= new int[m][n];
+
+        for(int i=0; i<m; i++){
+            Arrays.fill(dp[i], -1);
+        }
+
+        int minPath= Integer.MAX_VALUE;
+        for(int i=0; i<matrix[0].length; i++){
+            minPath= Math.min(minPath, f(0,i, matrix, dp));
+        }
+        return minPath;
+    }
+    public int f(int i, int j, int[][] matrix, int[][] dp){
+        if(j>matrix[0].length-1 || j<0)    return Integer.MAX_VALUE;
+        if(i== matrix.length-1 && j<matrix[0].length)   return matrix[i][j];
+
+        if(dp[i][j]!= -1)   return dp[i][j];
+
+        int diagonalLeft= f(i+1, j-1, matrix, dp);
+        int down= f(i+1, j, matrix, dp);
+        int diagonalRight= f(i+1, j+1, matrix, dp);
+
+        int mini= Math.min(diagonalLeft, Math.min(down, diagonalRight));
+
+        return dp[i][j]=  matrix[i][j]+ mini;
+    }
+}
+                                                                                        APPROACH 3: TABULATION
+                                                                                        TIME COMPLEXITY: O(N^2)
+                                                                                        SPACE COMPLEXITY: O(N^2) for dp array
+import java.util.Arrays;
+
+class Solution {
+    //tabulation approach
+    //time complexity: O(n^2)
+    //spacce complexity:  O(n^2) for dp array
+    public int minFallingPathSum(int[][] matrix) {
+        int m= matrix.length;
+        int n= matrix[0].length;
+
+        int minPath= Integer.MAX_VALUE;
+        int[][] dp= new int[m][n];
+
+        for(int j=0; j<n; j++){
+            dp[0][j]= matrix[0][j];
+        }
+
+        for(int i=1; i<m; i++){
+            for(int j=0; j<n; j++){
+                int diagonalLeft= (j==0)? Integer.MAX_VALUE: dp[i-1][j-1];
+                int down= dp[i-1][j];
+                int diagonalRight= (j== n-1)? Integer.MAX_VALUE: dp[i-1][j+1];
+
+                dp[i][j]= matrix[i][j]+ Math.min(diagonalLeft, Math.min(down, diagonalRight));
+
+                if(i==m-1)  minPath= Math.min(minPath, dp[m-1][j]);
+            }
+        }
+        return (minPath== Integer.MAX_VALUE )? matrix[0][0]: minPath ;
+    }
+    
+}
+                                                                                       APPROACH 4: SPACE OPTIMISED
+                                                                                        TIME COMPLEXITY: O(N^2)
+                                                                                        SPACE COMPLEXITY:O(N) 
+import java.util.Arrays;
+
+class Solution {
+    //space optimised approach
+    //time complexity: O(n^2)
+    //spacce complexity:  O(n) 
+    public int minFallingPathSum(int[][] matrix) {
+        int m= matrix.length;
+        int n= matrix[0].length;
+
+        int[]  prev= new int[n];
+        int minPath= Integer.MAX_VALUE;
+
+        for(int i=0; i<n; i++){
+            prev[i]= matrix[0][i];
+        }   
+
+        for(int i=1; i<m; i++){
+            int[] temp= new int[n];
+            for(int j=0; j<n; j++){
+                int diagonalUpLeft= (j==0)? Integer.MAX_VALUE : prev[j-1];
+                int up= prev[j];
+                int diagonalUpRight= (j==n-1)? Integer.MAX_VALUE: prev[j+1];
+                temp[j]= matrix[i][j]+ Math.min(diagonalUpLeft, Math.min(up, diagonalUpRight));
+                if(i==m-1)  minPath= Math.min(minPath, temp[j]);
+            }
+            prev= temp;
+        }
+
+        return (minPath==Integer.MAX_VALUE)? matrix[0][0] : minPath;
+    }
+    
+}
