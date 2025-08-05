@@ -1,0 +1,145 @@
+PROBLEM STATEMENT:
+You are given an array 'arr' of size 'n' containing positive integers and a target sum 'k'.
+Find the number of ways of selecting the elements from the array such that the sum of chosen elements is equal to the target 'k'.
+Since the number of ways can be very large, print it modulo 10 ^ 9 + 7.
+
+SOLUTION:
+                                                                                    APPROACH 1: RECURSION
+                                                                                      TIME COMPLEXITY: O(2^n)
+                                                                                      SPACE COMPLEXITY: O(n)
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    //recursion
+    //time complexity: O(2^n)
+    //space complexity: O(n)
+    public static int findWays(int num[], int tar) {
+        return f(num.length-1, tar, num);
+    }
+
+    public static int f(int ind, int sum, int[] nums){
+        if(sum==0)  return 1;
+        if(ind==0){
+            if(nums[ind]==sum)  return 1;
+            else    return 0;
+        }
+        int notPick= f(ind-1, sum, nums);
+        int pick=0;
+        if(nums[ind]<=sum){
+            pick= f(ind-1, sum-nums[ind], nums);
+        }
+        return pick + notPick;
+    }
+}
+                                                                                    APPROACH 2: MEMOIZATION
+                                                                                      TIME COMPLEXITY: O(n*tar)
+                                                                                      SPACE COMPLEXITY: O(n) + O(n*tar)
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    //memoization
+    //time complexity: O(n*tar)
+    //space complexity: O(n) + O(n*tar)
+    public static int findWays(int num[], int tar) {
+        int[][] dp= new int[num.length][tar+1];
+        for(int i=0; i<num.length; i++){
+            Arrays.fill(dp[i], -1);
+        }
+        for(int i=0; i<num.length; i++){
+            dp[i][0]= 1;
+        }
+        dp[0][tar]=1;
+        
+        return f(num.length-1, tar, num, dp);
+    }
+
+    public static int f(int ind, int sum, int[] nums, int[][] dp){
+        if(sum==0)  return 1;
+        if(ind==0){
+            if(nums[ind]==sum)  return 1;
+            else    return 0;
+        }
+        if(dp[ind][sum] != -1)  return dp[ind][sum];
+        int notPick= f(ind-1, sum, nums, dp);
+        int pick=0;
+        if(nums[ind]<=sum){
+            pick= f(ind-1, sum-nums[ind], nums, dp);
+        }
+        return dp[ind][sum]= pick + notPick;
+    }
+}
+                                                                                   APPROACH 3: TABULATION
+                                                                                      TIME COMPLEXITY:  O(n*tar)
+                                                                                      SPACE COMPLEXITY: O(n*tar)
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    //tabulation
+    //time complexity: O(n*tar)
+    //space complexity:  O(n*tar)
+    static final int MOD = 1_000_000_007;
+    public static int findWays(int num[], int tar) {
+        int[][] dp= new int[num.length][tar+1];
+
+        if(num[0]==0) dp[0][0]=2;
+        else{
+            dp[0][0]=1;
+        }
+        if(num[0]!=0 && num[0]<=tar)    dp[0][num[0]]=1;
+        
+
+        for(int i=1; i<num.length; i++){
+            for(int j=0; j<=tar; j++){
+                int notPick= dp[i-1][j];
+                int pick=0;
+                if(num[i]<=j){
+                    pick= dp[i-1][j-num[i]];
+                }
+                dp[i][j]= (pick + notPick) % MOD;
+            }
+        }
+        return dp[num.length-1][tar];
+        
+    }
+}
+                                                                                   APPROACH 4: SPACE OPTIMISATION
+                                                                                      TIME COMPLEXITY: O(n * tar)
+                                                                                      SPACE COMPLEXITY: O(n)
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    //space optimisation
+    //time complexity: O(n * tar)
+    //space complexity:  O(n)
+    static final int MOD = 1_000_000_007;
+    public static int findWays(int num[], int tar) {
+        int[] prev= new int[tar+1];
+        int[] cur= new int[tar+1];
+
+        if(num[0]==0) prev[0]=2;
+        else{
+            prev[0]=1;
+        }
+        if(num[0]!=0 && num[0]<=tar)    prev[num[0]]=1;
+        
+
+        for(int i=1; i<num.length; i++){
+            for(int j=0; j<=tar; j++){
+                int notPick= prev[j];
+                int pick=0;
+                if(num[i]<=j){
+                    pick= prev[j-num[i]];
+                }
+                cur[j]= (pick + notPick) % MOD;
+            }
+            prev= cur.clone();
+        }
+        return prev[tar];
+        
+    }
+}
+
