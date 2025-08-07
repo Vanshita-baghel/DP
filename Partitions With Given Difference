@@ -1,0 +1,151 @@
+PROBLEM STATEMENT:
+Given an array ‘ARR’, partition it into two subsets (possibly empty) such that their union is the original array. Let the sum of the elements of these two subsets be ‘S1’ and ‘S2’.
+
+Given a difference ‘D’, count the number of partitions in which ‘S1’ is greater than or equal to ‘S2’ and the difference between ‘S1’ and ‘S2’ is equal to ‘D’. Since the answer may be too large, return it modulo ‘10^9 + 7’.
+
+SOLUTION:
+
+                                                                                        APPROACH 1: RECURSION
+                                                                                        TIME COMPLEXITY: O(2^n)
+                                                                                        SPACE COMPLEXITY: O(n)
+import java.util.*;
+
+public class Solution {
+    public static int countPartitions(int n, int d, int[] arr) {
+        int total = 0;
+        for (int num : arr) total += num;
+
+        if ((total - d) < 0 || (total - d) % 2 != 0) return 0;
+
+        int target = (total - d) / 2;
+
+        return f(n - 1, target, arr);
+    }
+
+    public static int f(int ind, int target, int[] arr) {
+        if (ind == 0) {
+            if (target == 0 && arr[0] == 0) return 2;
+            if (target == 0 || target == arr[0]) return 1;
+            return 0;
+        }
+
+        int notTake = f(ind - 1, target, arr);
+        int take = 0;
+        if (arr[ind] <= target)
+            take = f(ind - 1, target - arr[ind], arr);
+
+        return take + notTake;
+    }
+}
+
+                                                                                        APPROACH 2: MEMOIZATION
+                                                                                        TIME COMPLEXITY: O(n * target)
+                                                                                        SPACE COMPLEXITY: O(n * target) + O(n)
+import java.util.*;
+
+public class Solution {
+    public static int countPartitions(int n, int d, int[] arr) {
+        int total = 0;
+        for (int num : arr) total += num;
+
+        if ((total - d) < 0 || (total - d) % 2 != 0) return 0;
+
+        int target = (total - d) / 2;
+
+        int[][] dp = new int[n][target + 1];
+        for (int[] row : dp)
+            Arrays.fill(row, -1);
+
+        return f(n - 1, target, arr, dp);
+    }
+
+    public static int f(int ind, int target, int[] arr, int[][] dp) {
+        if (ind == 0) {
+            if (target == 0 && arr[0] == 0) return 2;
+            if (target == 0 || target == arr[0]) return 1;
+            return 0;
+        }
+
+        if (dp[ind][target] != -1) return dp[ind][target];
+
+        int notTake = f(ind - 1, target, arr, dp);
+        int take = 0;
+        if (arr[ind] <= target)
+            take = f(ind - 1, target - arr[ind], arr, dp);
+
+        return dp[ind][target] = take + notTake;
+    }
+}
+
+                                                                                        APPROACH 3: TABULATION
+                                                                                        TIME COMPLEXITY: O(n * target)
+                                                                                        SPACE COMPLEXITY: O(n * target)
+import java.util.* ;
+import java.io.*; 
+public class Solution {
+	//tabulation
+	public static int countPartitions(int n, int d, int[] arr) {
+		int total=0;
+		for(int num: arr){
+			total+= num;
+		}
+		int target= (total-d)/2;
+		if((total-d)<0 || (total-d)%2 !=0)	return 0;
+
+		int[][] dp= new int[n][target+1];
+		if(arr[0]==0)	dp[0][0]=2;
+		else	dp[0][0]=1;
+
+		if(arr[0]!=0 && arr[0]<=target)	dp[0][arr[0]]=1;
+
+		for(int i=1; i<dp.length; i++){
+			for(int j=0; j<=target; j++){
+				int notTake= dp[i-1][j];
+				int take= 0;
+				if(arr[i]<=j)	take= dp[i-1][j-arr[i]]; 
+
+				dp[i][j]= (notTake+take) % 1000000007;
+			}
+		}
+
+		return dp[n-1][target];
+	}
+}
+                                                                                        APPROACH 4: SPACE OPTIMISATION
+                                                                                        TIME COMPLEXITY: O(n * target)
+                                                                                        SPACE COMPLEXITY: O(1)
+import java.util.* ;
+import java.io.*; 
+public class Solution {
+	//space optimisation
+	public static int countPartitions(int n, int d, int[] arr) {
+		int total=0;
+		for(int num: arr){
+			total+= num;
+		}
+		int target= (total-d)/2;
+		if((total-d)<0 || (total-d)%2 !=0)	return 0;
+
+		int[] prev= new int[target+1];
+		int[] cur= new int[target+1];
+
+		if(arr[0]==0)	prev[0]=2;
+		else	prev[0]=1;
+
+		if(arr[0]!=0 && arr[0]<=target)	prev[arr[0]]=1;
+
+		for(int i=1; i<n; i++){
+			for(int j=0; j<=target; j++){
+				int notTake= prev[j];
+				int take= 0;
+				if(arr[i]<=j)	take= prev[j-arr[i]]; 
+
+				cur[j]= (notTake+take) % 1000000007;
+			}
+			prev= cur.clone();
+		}
+
+		return prev[target];
+	}
+}
+
