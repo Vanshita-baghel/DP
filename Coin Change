@@ -1,0 +1,155 @@
+PROBLEM STATEMENT:
+You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+
+Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+You may assume that you have an infinite number of each kind of coin.
+
+SOLUTION:
+
+                                                                                  APPROACH 1: RECURSION
+                                                                                    TIME COMPLEXITY > O(2^N)
+                                                                                    SPACE COMPLEXITY > O(N) = (approx O(target))
+class Solution{
+
+    public int coinChange(int[] coins, int amount) {
+        int n= coins.length;
+        int res= f(n-1, amount, coins);
+        return (res== Integer.MAX_VALUE) ? -1: res;
+    }
+    public int f(int ind, int target, int[] coins){
+        if(ind == 0){
+            // if(target<coins[ind])   return Integer.MAX_VALUE;
+            // else if(target== coins[0])  return 1;
+            // else{
+                if((target % coins[0]) != 0)    return Integer.MAX_VALUE;
+                return target/coins[0]; 
+            //}
+        }  
+
+        int notTake= f(ind-1, target, coins);
+        int take = Integer.MAX_VALUE;
+        if(coins[ind]<=target){
+            int subTake= f(ind, target-coins[ind], coins);
+            take= (subTake== Integer.MAX_VALUE)? Integer.MAX_VALUE: 1+subTake;
+        }
+        
+        return Math.min(take, notTake);
+    }
+}
+
+                                                                                  APPROACH 2: MEMOIZATION
+                                                                                    TIME COMPLEXITY = O(N* amount)
+                                                                                    SPACE COMPLEXITY = O(amount) + O(N* amount)
+class Solution{
+    //memoization
+    public int coinChange(int[] coins, int amount) {
+        int n= coins.length;
+        int[][] dp= new int[n][amount+1];
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+        int res= f(n-1, amount, coins, dp);
+        return (res== Integer.MAX_VALUE) ? -1: res;
+    }
+    public int f(int ind, int target, int[] coins, int[][] dp){
+        if(ind == 0){
+                if((target % coins[0]) != 0)    return Integer.MAX_VALUE;
+                return target/coins[0]; 
+        }  
+
+        if(dp[ind][target] != -1)   return dp[ind][target];
+        int notTake= f(ind-1, target, coins, dp);
+        int take = Integer.MAX_VALUE;
+        if(coins[ind]<=target){
+            int subTake= f(ind, target-coins[ind], coins, dp);
+            take= (subTake== Integer.MAX_VALUE)? Integer.MAX_VALUE: 1+subTake;
+        }
+        
+        return dp[ind][target]= Math.min(take, notTake);
+    }
+}
+
+                                                                                  APPROACH 3: TABULATION
+                                                                                    TIME COMPLEXITY = O(N* amount)
+                                                                                    SPACE COMPLEXITY = O(amount)
+class Solution{
+    //tabulation
+    public int coinChange(int[] coins, int amount) {
+        int n= coins.length;
+        int[][] dp= new int[n][amount+1];
+        
+        for(int i=0; i<n; i++){
+            dp[i][0]=0;
+        }
+
+        for(int i=0; i<=amount; i++){
+            if(i%coins[0] ==0)  dp[0][i]= i/coins[0];
+            else    dp[0][i]= Integer.MAX_VALUE;
+        }
+        for(int i=1; i<n; i++){
+            for(int j=1; j<=amount; j++){
+                int notTake= dp[i-1][j];
+                int take= Integer.MAX_VALUE;
+                if(coins[i]<=j){
+                    take= (dp[i][j-coins[i]]== Integer.MAX_VALUE) ? Integer.MAX_VALUE :
+                      1+dp[i][j-coins[i]];
+                }
+                dp[i][j]= Math.min(notTake, take);
+            }
+        }
+        // int res= f(n-1, amount, coins, dp);
+        return dp[n-1][amount]==Integer.MAX_VALUE ? -1:  dp[n-1][amount];
+    }
+    public int f(int ind, int target, int[] coins, int[][] dp){
+        if(ind == 0){
+                if((target % coins[0]) != 0)    return Integer.MAX_VALUE;
+                return target/coins[0]; 
+        }  
+
+        if(dp[ind][target] != -1)   return dp[ind][target];
+        int notTake= f(ind-1, target, coins, dp);
+        int take = Integer.MAX_VALUE;
+        if(coins[ind]<=target){
+            int subTake= f(ind, target-coins[ind], coins, dp);
+            take= (subTake== Integer.MAX_VALUE)? Integer.MAX_VALUE: 1+subTake;
+        }
+        
+        return dp[ind][target]= Math.min(take, notTake);
+    }
+}
+
+                                                                                  APPROACH 4: SPACE OPTIMISATION
+                                                                                    TIME COMPLEXITY = O(N* amount)
+                                                                                    SPACE COMPLEXITY = O(1)
+class Solution{
+    //space optimisation
+    public int coinChange(int[] coins, int amount) {
+        int n= coins.length;
+        int[] prev= new int[amount+1];
+        int[] cur= new int[amount+1];
+        
+        prev[0]=0;
+        cur[0]= 0;
+
+        for(int i=0; i<=amount; i++){
+            if(i%coins[0] ==0)  prev[i]= i/coins[0];
+            else    prev[i]= Integer.MAX_VALUE;
+        }
+        for(int i=1; i<n; i++){
+            for(int j=1; j<=amount; j++){
+                int notTake= prev[j];
+                int take= Integer.MAX_VALUE;
+                if(coins[i]<=j){
+                    take= (cur[j-coins[i]]== Integer.MAX_VALUE) ? Integer.MAX_VALUE :
+                      1+cur[j-coins[i]];
+                }
+                cur[j]= Math.min(notTake, take);
+            }
+            prev= cur.clone();
+        }
+        // int res= f(n-1, amount, coins, dp);
+        return prev[amount]==Integer.MAX_VALUE ? -1:  prev[amount];
+    }
+    
+}
