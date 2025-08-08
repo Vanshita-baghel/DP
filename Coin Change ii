@@ -1,0 +1,128 @@
+PROBLEM STATEMENT:
+You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+
+Return the number of combinations that make up that amount. If that amount of money cannot be made up by any combination of the coins, return 0.
+
+You may assume that you have an infinite number of each kind of coin.
+
+The answer is guaranteed to fit into a signed 32-bit integer.
+
+SOLUTION:
+
+                                                                                      APPROACH 1: RECURSION
+                                                                                    TIME COMPLEXITY: > O(2^N)
+                                                                                    SPACE COMPLEXITY: O(TARGET)
+class Solution {
+    //recursion
+    //tc> O(2^n)
+    //sc= O(amount)
+    public int change(int amount, int[] coins) {
+        int n= coins.length;
+        return f(n-1, amount, coins);
+    }
+    public int f(int ind, int target, int[] coins){
+        if(ind == 0){
+            if(target % coins[0] == 0)   return 1;
+            else return 0;
+        }
+        
+        int notTake= f(ind-1, target, coins);
+        int take=0;
+        if(coins[ind]<=target)  take= f(ind, target-coins[ind], coins);
+
+        return take + notTake;
+    }
+}
+
+                                                                                      APPROACH 2: MEMOIZATION
+                                                                                    TIME COMPLEXITY:  O(n * amount)
+                                                                                    SPACE COMPLEXITY: O(amount)
+class Solution {
+    //memoization
+    //tc= O(n*amount)
+    //sc= O(amount)
+    public int change(int amount, int[] coins) {
+        int n= coins.length;
+        int[][] dp= new int[n][amount+1];
+
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+
+        return f(n-1, amount, coins, dp);
+    }
+    public int f(int ind, int target, int[] coins, int[][] dp){
+        if(ind == 0){
+            if(target % coins[0] == 0)   return 1;
+            else return 0;
+        }
+        
+        if(dp[ind][target] != -1)   return dp[ind][target];
+
+        int notTake= f(ind-1, target, coins, dp);
+        int take=0;
+        if(coins[ind]<=target)  take= f(ind, target-coins[ind], coins, dp);
+
+        return dp[ind][target]= take + notTake;
+    }
+}
+                                                                                      APPROACH 3: TABULATION
+                                                                                    TIME COMPLEXITY: O(n*amount)
+                                                                                    SPACE COMPLEXITY: O(n*amount)
+class Solution {
+    //tabulation
+    //tc= O(n*amount)
+    //sc= O(n*amount)
+    public int change(int amount, int[] coins) {
+        int n= coins.length;
+        int[][] dp= new int[n][amount+1];
+        
+        for(int i=0; i<= amount; i++){
+            if(i%coins[0] == 0) dp[0][i]= 1;
+
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=0; j<=amount; j++){
+                int notTake= dp[i-1][j]; 
+                int take=0;
+                if(coins[i]<=j)  take= dp[i][j-coins[i]]; 
+
+                dp[i][j]= take+notTake;
+            }
+        }
+        return dp[n-1][amount];
+    }
+    
+}
+                                                                                      APPROACH 4: SPACE OPTIMISATION
+                                                                                    TIME COMPLEXITY:  O(n*amount)
+                                                                                    SPACE COMPLEXITY: O(1)
+class Solution {
+    //space optimisation
+    //tc= O(n*amount)
+    //sc= O(1)
+    public int change(int amount, int[] coins) {
+        int n= coins.length;
+        int[]prev= new int[amount+1];
+        int[]cur= new int[amount+1];
+        
+        for(int i=0; i<= amount; i++){
+            if(i%coins[0] == 0) prev[i]= 1;
+
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=0; j<=amount; j++){
+                int notTake= prev[j]; 
+                int take=0;
+                if(coins[i]<=j)  take= cur[j-coins[i]]; 
+
+                cur[j]= take+notTake;
+            }
+            prev= cur.clone();
+        }
+        return prev[amount];
+    }
+    
+}
