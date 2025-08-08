@@ -1,0 +1,152 @@
+PROBLEM STATEMENT:
+You are given an integer array nums and an integer target.
+
+You want to build an expression out of nums by adding one of the symbols '+' and '-' before each integer in nums and then concatenate all the integers.
+
+For example, if nums = [2, 1], you can add a '+' before 2 and a '-' before 1 and concatenate them to build the expression "+2-1".
+Return the number of different expressions that you can build, which evaluates to target.
+
+SOLUTION:
+                                                                                        APPROACH 1:
+                                                                                        TIME COMPLEXITY: O(2^N)
+                                                                                        SPACE COMPLEXITY: O(N)
+class Solution {
+    //approach 1
+        //recursion
+    public int findTargetSumWays(int[] nums, int target) {
+        int n= nums.length;
+        return f(n-1, target, nums);
+    }
+    public int f(int ind, int target, int[] nums){
+        if(ind<0){
+            if(target==0)   return 1;
+            else    return 0;
+        }
+        int plus= f(ind-1, target-nums[ind], nums);
+        int minus= f(ind-1, target+nums[ind], nums);
+
+        return plus+minus;
+    }
+}
+                                                                                        APPROACH 2:  MEMOIZATION
+                                                                                        TIME COMPLEXITY:  O(N*TARGET)
+                                                                                        SPACE COMPLEXITY: O(N*TARGET) + O(N)
+class Solution {
+    //approach 1
+    //memoization
+    public int findTargetSumWays(int[] nums, int target) {
+        int n= nums.length;
+        int sum=0;
+        for(int num : nums){
+            sum+= num;
+        }
+        if(target>sum || target< -sum)  return 0;
+
+        int[][] dp= new int[n][2*sum + 1];
+
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+        return f(n-1, target, nums, dp, sum);
+    }
+    public int f(int ind, int target, int[] nums, int[][] dp, int offset){
+        if(target+offset<0 || target+offset >=dp[0].length) return 0;
+
+        if(ind==0)  return ((nums[0]==target)? 1: 0) + ((nums[0]== -target)? 1: 0);
+
+        if(dp[ind][target + offset] != -1)   return dp[ind][target+offset];
+
+        int plus= f(ind-1, target-nums[ind], nums, dp, offset);
+        int minus= f(ind-1, target+nums[ind], nums, dp, offset);
+
+        return dp[ind][target+ offset] = plus+minus;
+    }
+}
+                                                                                        APPROACH 3: TABULATION
+                                                                                        TIME COMPLEXITY: O(N*TARGET)
+                                                                                        SPACE COMPLEXITY:  O(N*TARGET)
+class Solution {
+    //approach 1
+    //tabulation
+    public int findTargetSumWays(int[] nums, int target) {
+        int n= nums.length;
+        int sum=0;
+        for(int num : nums){
+            sum+= num;
+        }
+        if(target>sum || target< -sum)  return 0;
+
+        int[][] dp= new int[n][2*sum + 1];
+
+        if(nums[0]==0){
+            dp[0][sum]= 2;
+        }
+        else{
+            dp[0][nums[0]+sum]= 1;
+            dp[0][-nums[0]+sum]=1;
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=-sum; j<=sum; j++){
+
+                int plus= ((j-nums[i]+ sum)>=0 && (j-nums[i]+ sum)< 2*sum+1)?dp[i-1][j-nums[i]+ sum] : 0; 
+                int minus= ((j+nums[i]+ sum)>=0 && (j+nums[i]+ sum)< 2*sum+1)?dp[i-1][j+nums[i]+ sum] : 0;
+
+                dp[i][j+sum]= plus+minus;
+            }
+        }
+        
+        return dp[n-1][target+sum];
+    }
+    // public int f(int ind, int target, int[] nums, int[][] dp, int offset){
+    //     if(target+offset<0 || target+offset >=dp[0].length) return 0;
+
+    //     if(ind==0)  return ((nums[0]==target)? 1: 0) + ((nums[0]== -target)? 1: 0);
+
+    //     if(dp[ind][target + offset] != -1)   return dp[ind][target+offset];
+
+    //     int plus= f(ind-1, target-nums[ind], nums, dp, offset);
+    //     int minus= f(ind-1, target+nums[ind], nums, dp, offset);
+
+    //     return dp[ind][target+ offset] = plus+minus;
+    // }
+}
+                                                                                        APPROACH 4:  SPACE OPTIMISATION
+                                                                                        TIME COMPLEXITY: O(N*TARGET)
+                                                                                        SPACE COMPLEXITY: O(1)
+class Solution {
+    //approach 1
+    //space optimisation
+    public int findTargetSumWays(int[] nums, int target) {
+        int n= nums.length;
+        int sum=0;
+        for(int num : nums){
+            sum+= num;
+        }
+        if(target>sum || target< -sum)  return 0;
+
+        int[] prev= new int[2*sum + 1];
+        int[] cur= new int[2*sum + 1];
+
+        if(nums[0]==0){
+            prev[sum]= 2;
+        }
+        else{
+            prev[nums[0]+sum]= 1;
+            prev[-nums[0]+sum]=1;
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=-sum; j<=sum; j++){
+
+                int plus= ((j-nums[i]+ sum)>=0 && (j-nums[i]+ sum)< 2*sum+1)?prev[j-nums[i]+ sum] : 0; 
+                int minus= ((j+nums[i]+ sum)>=0 && (j+nums[i]+ sum)< 2*sum+1)?prev[j+nums[i]+ sum] : 0;
+
+                cur[j+sum]= plus+minus;
+            }
+            prev= cur.clone();
+        }
+        
+        return prev[target+sum];
+    }
+}
