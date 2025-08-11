@@ -1,0 +1,139 @@
+PROBLEM STATEMENT:
+                                                                                              APPROACH 1: RECURSION
+                                                                                            TIME COMPLEXITY > O(2^N)
+                                                                                            SPACE COMPLEXITY: O(w)
+import java.util.Arrays;
+public class Solution {
+    public static int unboundedKnapsack(int n, int w, int[] profit, int[] weight) {
+        
+        return f(n-1, w, weight, profit, dp);
+
+    }
+    public static int f(int ind, int w, int[] weight, int[] val){
+        if(ind==0){
+            return ((int)(w/weight[0])) * val[0];
+        }
+        int notTake= f(ind-1, w, weight, val);
+        int take= 0;
+        if(weight[ind] <= w)   take= val[ind]+ f(ind, w-weight[ind], weight, val);
+
+        return Math.max(take, notTake);
+    }
+}
+                                                                                              APPROACH 2: MEMOIZATION
+                                                                                            TIME COMPLEXITY: O(n * w)
+                                                                                            SPACE COMPLEXITY:  O(w) + O(n * w)
+import java.util.Arrays;
+public class Solution {
+    //memoization
+    public static int unboundedKnapsack(int n, int w, int[] profit, int[] weight) {
+        int[][] dp= new int[n][w+1];
+
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+        return f(n-1, w, weight, profit, dp);
+
+    }
+    public static int f(int ind, int w, int[] weight, int[] val, int[][] dp){
+        if(ind==0){
+            return ((int)(w/weight[0])) * val[0];
+        }
+
+        if(dp[ind][w] != -1)    return dp[ind][w];
+        int notTake= f(ind-1, w, weight, val, dp);
+        int take= 0;
+        if(weight[ind] <= w)   take= val[ind]+ f(ind, w-weight[ind], weight, val, dp);
+
+        return dp[ind][w]= Math.max(take, notTake);
+    }
+}
+                                                                                              APPROACH 3: TABULATION
+                                                                                            TIME COMPLEXITY:  O(n * w)
+                                                                                            SPACE COMPLEXITY:  O(n * w)
+import java.util.Arrays;
+public class Solution {
+    //tabulation
+    public static int unboundedKnapsack(int n, int w, int[] profit, int[] weight) {
+        int[][] dp= new int[n][w+1];
+
+        for(int i=0; i<=w; i++){
+            dp[0][i]= ((int)(i/weight[0])) * profit[0];
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=0; j<=w; j++){
+                int notTake= dp[i-1][j];
+                int take= 0;
+                if(weight[i] <= j)   take= profit[i]+ dp[i][j-weight[i]]; 
+                
+                dp[i][j]= Math.max(take, notTake);
+            }
+        }
+
+        return dp[n-1][w];
+
+    }
+    
+}
+                                                                                              APPROACH 4: SPACE OPTIMISATION
+                                                                                            TIME COMPLEXITY:  O(n * w)
+                                                                                            SPACE COMPLEXITY: O(2*n)
+import java.util.Arrays;
+public class Solution {
+    //space optimisation
+    public static int unboundedKnapsack(int n, int w, int[] profit, int[] weight) {
+        int[] prev= new int[w+1];
+        int[] cur= new int[w+1];
+
+        for(int i=0; i<=w; i++){
+            prev[i]= ((int)(i/weight[0])) * profit[0];
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=0; j<=w; j++){
+                int notTake= prev[j];
+                int take= 0;
+                if(weight[i] <= j)   take= profit[i]+ cur[j-weight[i]]; 
+                
+                cur[j]= Math.max(take, notTake);
+            }
+            prev= cur.clone();
+        }
+
+        return prev[w];
+
+    }
+    
+}
+                                                                                              APPROACH 5: SPACE OPTIMISATION 2
+                                                                                            TIME COMPLEXITY:  O(n * w)
+                                                                                            SPACE COMPLEXITY: O(n)
+import java.util.Arrays;
+public class Solution {
+    //space optimisation
+    public static int unboundedKnapsack(int n, int w, int[] profit, int[] weight) {
+        int[] prev= new int[w+1];
+
+        for(int i=0; i<=w; i++){
+            prev[i]= ((int)(i/weight[0])) * profit[0];
+        }
+
+        for(int i=1; i<n; i++){
+            for(int j=0; j<=w; j++){
+                int notTake= prev[j];
+                int take= 0;
+                if(weight[i] <= j)   take= profit[i]+ prev[j-weight[i]]; 
+                
+                prev[j]= Math.max(take, notTake);
+            }
+        }
+
+        return prev[w];
+
+    }
+    
+}
+
+
+
