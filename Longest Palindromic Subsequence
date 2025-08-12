@@ -1,0 +1,147 @@
+PROBLEM STATEMENT:
+Given a string s, find the longest palindromic subsequence's length in s.
+
+A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.
+
+SOLUTION:
+
+                                                                                          APPROACH 1: RECURSION
+                                                                                          TIME COMPLEXITY: O(2^N)
+                                                                                          SPACE COMPLEXITY: O(N)
+class Solution {
+    //recursion
+    public int longestPalindromeSubseq(String s) {
+        return f(0, s.length()-1, s);
+    }
+    public int f(int i, int j, String s){
+        if(i<0 || j<0 || i>s.length()-1 || i>j )  return 0;
+        if(i==j)    return 1;
+
+        if(s.charAt(i)== s.charAt(j)) return 2+ f(i+1, j-1, s);
+        else return Math.max( f(i+1, j, s), f(i, j-1, s));
+    }
+}
+                                                                                          APPROACH 2: MEMOIZATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n) + O(n*n)
+class Solution {
+    //memoization
+    //tc= O(2^n)
+    //sc= O(n)
+    public int longestPalindromeSubseq(String s) {
+        int n= s.length();
+        int[][] dp= new int[n][n];
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+
+        return f(0, s.length()-1, s, dp);
+    }
+    public int f(int i, int j, String s, int[][] dp){
+        if(i<0 || j<0 || i>s.length()-1 || i>j )  return 0;
+        if(i==j)    return 1;
+
+        if(dp[i][j]!= -1)   return dp[i][j];
+
+        if(s.charAt(i)== s.charAt(j)) return dp[i][j]= 2+ f(i+1, j-1, s, dp);
+        else return dp[i][j]= Math.max( f(i+1, j, s, dp), f(i, j-1, s, dp));
+    }
+}
+                                                                                          APPROACH 3: TABULATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n*n)
+class Solution {
+    // tabulation
+    //tc= O(n*n)
+    //sc= O(n)
+    public int longestPalindromeSubseq(String s) {
+        int n= s.length();
+        int[][] dp= new int[n][n];
+
+        for(int i=0; i<n; i++){
+            dp[i][i]= 1;
+        }
+
+        for(int i=n-1; i>=0; i--){
+            for(int j=i+1; j<n; j++){
+
+                if(s.charAt(i)== s.charAt(j)){
+                    dp[i][j]= 2+ dp[i+1][j-1] ;
+                }
+                else{
+                    dp[i][j]= Math.max( dp[i+1][j], dp[i][j-1]);
+                }
+            }
+        }
+        return dp[0][n-1];
+    }
+}
+                                                                                          APPROACH 4: SPACE OPTIMISATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n)
+class Solution {
+    // space optimisation
+    //tc= O(n * n)
+    //sc= O(n)
+    public int longestPalindromeSubseq(String s) {
+        int n= s.length();
+        int[] cur= new int[n];
+        int[] next= new int[n];
+
+        for(int i=n-1; i>=0; i--){
+            cur[i]=1;
+            for(int j=i+1; j<n; j++){
+
+                if(s.charAt(i)== s.charAt(j)){
+                    cur[j]= 2+ next[j-1] ;
+                }
+                else{
+                    cur[j]= Math.max( next[j], cur[j-1]);
+                }
+            }
+            next= cur.clone();
+        }
+        return next[n-1];
+    }
+}
+                                                                                          APPROACH 5: USING LCS
+                                                                                          TIME COMPLEXITY:  O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n)
+class Solution {
+    //approach 2
+    public int longestPalindromeSubseq(String s) {
+        String t= reverse(s);
+        return longestCommonSubsequence(s,t);
+    }
+    public String reverse(String s){
+        StringBuilder rev= new StringBuilder();
+        int i= s.length()-1;
+        while(i>=0){
+            rev.append(s.charAt(i));
+            i--;
+        }
+        return rev.toString();
+    }
+    public int longestCommonSubsequence(String s, String t) {
+        int n= s.length();
+        int m= t.length();
+
+        int[] prev= new int[m+1];
+        int[] cur= new int[m+1];
+        
+        for(int j=0; j<=m; j++){
+            prev[j]= 0;
+        }
+
+        for(int i= 1; i<=n; i++){
+            for(int j=1; j<=m; j++){
+                if(s.charAt(i-1) == t.charAt(j-1))  cur[j]= 1+ prev[j-1];
+
+                else cur[j]= Math.max(prev[j], cur[j-1]);
+            }
+            prev= cur.clone();
+        }
+
+        return prev[m];
+    }
+}
