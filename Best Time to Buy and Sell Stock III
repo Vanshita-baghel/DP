@@ -1,0 +1,169 @@
+PROBLEM STATEMENT:
+You are given an array prices where prices[i] is the price of a given stock on the ith day.
+
+Find the maximum profit you can achieve. You may complete at most two transactions.
+
+Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+SOLUTION:
+
+                                                                                        APPROACH 1: RECURSION
+                                                                                        TIME COMPLEXITY: O(2^n)
+                                                                                        SPACE COMPLEXITY: O(n)
+class Solution {
+    //recursion
+    //tc= O(2^n)
+    //sc= O(n)
+    public int maxProfit(int[] prices) {
+        
+        return f(0,1,2,prices);
+    }
+    public int f(int ind, int buy, int cap, int[] prices){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(buy==1){
+            return Math.max(-prices[ind]+f(ind+1,0,cap, prices), f(ind+1,1,cap, prices));
+        }
+        else{
+            return Math.max( prices[ind]+f(ind+1,1,cap-1, prices), f(ind+1, 0, cap, prices));
+        }
+    }
+}
+
+                                                                                        APPROACH 2: MEMOIZATION
+                                                                                        TIME COMPLEXITY: O(n*2*3)
+                                                                                        SPACE COMPLEXITY: O(n)
+class Solution {
+    //memoization
+    //tc= O(n*2*3)
+    //sc= O(n)
+    public int maxProfit(int[] prices) {
+        int n= prices.length;
+
+        int[][][] dp= new int[n][2][3];
+        for(int i=0; i<n; i++){
+            for(int j=0; j<2; j++){
+                for(int k=0; k<3; k++){
+                    dp[i][j][k]= -1;
+                }
+            }
+        }
+        return f(0,1,2,prices, dp);
+    }
+    public int f(int ind, int buy, int cap, int[] prices, int[][][] dp){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(dp[ind][buy][cap] !=-1 )     return dp[ind][buy][cap];   
+
+        if(buy==1){
+            return dp[ind][buy][cap] = Math.max(-prices[ind]+f(ind+1,0,cap, prices, dp), f(ind+1,1,cap, prices, dp));
+        }
+        else{
+            return dp[ind][buy][cap] = Math.max( prices[ind]+f(ind+1,1,cap-1, prices, dp), f(ind+1, 0, cap, prices, dp));
+        }
+    }
+}
+
+                                                                                        APPROACH 3: TABULATION
+                                                                                        TIME COMPLEXITY: O(n*2*3)
+                                                                                        SPACE COMPLEXITY: O(n*2*3)
+class Solution {
+    //tabulation
+    //tc= O(n*2*3)
+    //sc= O(n*2*3)
+    public int maxProfit(int[] prices) {
+        int n= prices.length;
+
+        int[][][] dp= new int[n+1][2][3];
+        
+        // //base case
+        // //1.  cap==0  -> ind and buy can be anything
+        // for(int ind=0; ind<n; ind++){
+        //     for(int buy=0; buy<2; buy++){
+        //         dp[ind][buy][0]= 0;
+        //     }
+        // }
+        // //2. ind==n -> buy and cap can be anything
+        // for(int buy=0; buy<2; buy++){
+        //     for(int cap=0; cap<3; cap++){
+        //         dp[n-1][buy][cap]= 0;
+        //     }
+        // }
+
+        for(int ind= n-1; ind>=0; ind--){
+            for(int buy= 0; buy<2; buy++){
+                for(int cap=1; cap<3; cap++){
+                    if(buy==1){
+                        dp[ind][buy][cap] = Math.max(-prices[ind]+dp[ind+1][0][cap] , dp[ind+1][1][cap]);
+                    }
+                    else{
+                        dp[ind][buy][cap] = Math.max( prices[ind]+dp[ind+1][1][cap-1], dp[ind+1][0][cap]);
+                    }
+                }
+            }
+        }
+
+        return dp[0][1][2];
+    }
+    public int f(int ind, int buy, int cap, int[] prices, int[][][] dp){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(dp[ind][buy][cap] !=-1 )     return dp[ind][buy][cap];   
+
+        if(buy==1){
+            return dp[ind][buy][cap] = Math.max(-prices[ind]+f(ind+1,0,cap, prices, dp), f(ind+1,1,cap, prices, dp));
+        }
+        else{
+            return dp[ind][buy][cap] = Math.max( prices[ind]+f(ind+1,1,cap-1, prices, dp), f(ind+1, 0, cap, prices, dp));
+        }
+    }
+}
+
+                                                                                        APPROACH 4: SPACE OPTIMISATION
+                                                                                        TIME COMPLEXITY: O(n*2*3)
+                                                                                        SPACE COMPLEXITY: O(2*3)
+class Solution {
+    //space optimisation
+    //tc= O(n*2*3)
+    //sc= O(2*3)
+    public int maxProfit(int[] prices) {
+        int n= prices.length;
+
+        int[][] after= new int[2][3];
+        int[][] cur= new int[2][3];
+
+        for(int ind= n-1; ind>=0; ind--){
+            for(int buy= 0; buy<2; buy++){
+                for(int cap=1; cap<3; cap++){
+                    if(buy==1){
+                        cur[buy][cap] = Math.max(-prices[ind]+after[0][cap] , after[1][cap]);
+                    }
+                    else{
+                        cur[buy][cap] = Math.max( prices[ind]+after[1][cap-1], after[0][cap]);
+                    }
+                }
+            }
+            int[][] temp= after;
+            after= cur;
+            cur= temp;
+        }
+
+        return after[1][2];
+    }
+    public int f(int ind, int buy, int cap, int[] prices, int[][][] dp){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(dp[ind][buy][cap] !=-1 )     return dp[ind][buy][cap];   
+
+        if(buy==1){
+            return dp[ind][buy][cap] = Math.max(-prices[ind]+f(ind+1,0,cap, prices, dp), f(ind+1,1,cap, prices, dp));
+        }
+        else{
+            return dp[ind][buy][cap] = Math.max( prices[ind]+f(ind+1,1,cap-1, prices, dp), f(ind+1, 0, cap, prices, dp));
+        }
+    }
+}
