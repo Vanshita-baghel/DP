@@ -1,0 +1,130 @@
+PROBLEM STATEMENT:
+You are given an integer array prices where prices[i] is the price of a given stock on the ith day, and an integer k.
+
+Find the maximum profit you can achieve. You may complete at most k transactions: i.e. you may buy at most k times and sell at most k times.
+
+Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+SOLUTION:
+                                                                                              APPROACH 1: RECURSION
+                                                                                              TIME COMPLEXITY: O(2^n)
+                                                                                              SPACE COMPLEXITY: O(n)
+class Solution {
+    //recursion
+    //tc= O(2^n)
+    //sc= O(n)
+    public int maxProfit(int k, int[] prices) {
+        return f(0,1,k,prices);
+    }
+    public int f(int ind, int buy, int cap, int[] prices){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(buy==1){
+            return Math.max(-prices[ind]+f(ind+1,0,cap, prices), f(ind+1,1,cap, prices));
+        }
+        else{
+            return Math.max( prices[ind]+f(ind+1,1,cap-1, prices), f(ind+1, 0, cap, prices));
+        }
+    }
+
+                                                                                              APPROACH 2: MEMOIZATION
+                                                                                              TIME COMPLEXITY: O(n*2*k)
+                                                                                              SPACE COMPLEXITY: O(n*2*k) + O(n)
+
+class Solution {
+    //memoization
+    //tc= O(n*2*k)
+    //sc= O(n) + O(n*2*k)
+    public int maxProfit(int k, int[] prices) {
+        int n= prices.length;
+
+        int[][][] dp= new int[n][2][k+1];
+        for(int i=0; i<n; i++){
+            for(int j=0; j<2; j++){
+                for(int m=0; m<=k; m++){
+                    dp[i][j][m]= -1;
+                }
+            }
+        }
+        return f(0,1,k,prices, dp);
+    }
+    public int f(int ind, int buy, int cap, int[] prices, int[][][] dp){
+        if(cap==0)  return 0;
+        if(ind==prices.length)  return 0;
+
+        if(dp[ind][buy][cap] !=-1 )     return dp[ind][buy][cap];   
+
+        if(buy==1){
+            return dp[ind][buy][cap] = Math.max(-prices[ind]+f(ind+1,0,cap, prices, dp), f(ind+1,1,cap, prices, dp));
+        }
+        else{
+            return dp[ind][buy][cap] = Math.max( prices[ind]+f(ind+1,1,cap-1, prices, dp), f(ind+1, 0, cap, prices, dp));
+        }
+    }
+}
+
+                                                                                              APPROACH 3: TABULATION
+                                                                                              TIME COMPLEXITY: O(n*2*k)
+                                                                                              SPACE COMPLEXITY: O(n*2*k)
+class Solution {
+    //tabulation
+    //tc= O(n*2*k)
+    //sc= O(n*2*k)
+    public int maxProfit(int k, int[] prices) {
+        int n= prices.length;
+
+        int[][][] dp= new int[n+1][2][k+1];
+
+        for(int ind= n-1; ind>=0; ind--){
+            for(int buy= 0; buy<2; buy++){
+                for(int cap=1; cap<=k; cap++){
+                    if(buy==1){
+                        dp[ind][buy][cap] = Math.max(-prices[ind]+dp[ind+1][0][cap] , dp[ind+1][1][cap]);
+                    }
+                    else{
+                        dp[ind][buy][cap] = Math.max( prices[ind]+dp[ind+1][1][cap-1], dp[ind+1][0][cap]);
+                    }
+                }
+            }
+        }
+
+        return dp[0][1][k];
+    }
+    
+}
+
+                                                                                              APPROACH 4: SPACE OPTIMISATION
+                                                                                              TIME COMPLEXITY: O(n*2*k)
+                                                                                              SPACE COMPLEXITY: O(2*k)
+class Solution {
+    //space optimisation
+    //tc= O(n*2*k)
+    //sc= O(2*k)
+    public int maxProfit(int k, int[] prices) {
+        int n= prices.length;
+
+        int[][] after= new int[2][k+1];
+        int[][] cur= new int[2][k+1];
+
+        for(int ind= n-1; ind>=0; ind--){
+            for(int buy= 0; buy<2; buy++){
+                for(int cap=1; cap<=k; cap++){
+                    if(buy==1){
+                        cur[buy][cap] = Math.max(-prices[ind]+after[0][cap] , after[1][cap]);
+                    }
+                    else{
+                        cur[buy][cap] = Math.max( prices[ind]+after[1][cap-1], after[0][cap]);
+                    }
+                }
+            }
+            int[][] temp= after;
+            after= cur;
+            cur= temp;
+        }
+
+        return after[1][k];
+    }
+    
+}
+}
