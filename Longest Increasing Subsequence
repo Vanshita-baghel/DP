@@ -1,0 +1,176 @@
+PROBLEM STATEMENT:
+Given an integer array nums, return the length of the longest strictly increasing subsequence.
+
+SOLUTION:
+
+                                                                                          APPROACH 1: RECURSION
+                                                                                          TIME COMPLEXITY: O(2^n)
+                                                                                          SPACE COMPLEXITY: O(n)
+class Solution {
+    //recursion
+    //tc= O(2^n)
+    //sc= O(n)
+    public int lengthOfLIS(int[] nums) {
+        
+        int n= nums.length;
+
+        return f(0, -1, nums);
+    }
+    public int f(int ind, int prev_ind, int [] nums){
+        if(ind== nums.length)   return 0;
+
+        int len=0;
+        len= f(ind+1, prev_ind, nums);
+        if(prev_ind == -1 || nums[ind]>nums[prev_ind]){
+            len= Math.max(len, 1+f(ind+1, ind, nums));
+        }
+        return len;
+    }
+}
+
+                                                                                          APPROACH 2: MEMOIZATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n)+O(n*n)
+class Solution {
+    //memoization
+    //tc= O(n*n)
+    //sc= O(n)+O(n*n)
+    public int lengthOfLIS(int[] nums) {
+        
+        int n= nums.length;
+
+        int[][] dp= new int[n][n+1];
+
+        for(int i=0; i<n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+
+        return f(0, -1, nums, dp);
+    }
+    public int f(int ind, int prev_ind, int [] nums, int[][] dp){
+        if(ind== nums.length)   return 0;
+
+        if(dp[ind][prev_ind+1] != -1) return dp[ind][prev_ind+1];
+        int len=0;
+        len= f(ind+1, prev_ind, nums, dp);
+        if(prev_ind == -1 || nums[ind]>nums[prev_ind]){
+            len= Math.max(len, 1+f(ind+1, ind, nums, dp));
+        }
+        return dp[ind][prev_ind+1]= len;
+    }
+}
+                                                                                          APPROACH 3: TABULATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n*n)
+class Solution {
+    //tabulation
+    //tc= O(n*n)
+    //sc= O(n*n)
+    public int lengthOfLIS(int[] nums) {
+        
+        int n= nums.length;
+
+        int[][] dp= new int[n+1][n+1];
+
+        for(int ind=n-1; ind>=0; ind--){
+            for(int prev_ind= ind-1; prev_ind>=-1; prev_ind--){
+                int len=0;
+                len= dp[ind+1][prev_ind+1] ;
+                if(prev_ind == -1 || nums[ind]>nums[prev_ind]){
+                    len= Math.max(len, 1+ dp[ind+1][ind+1] );
+                }
+                dp[ind][prev_ind+1]= len;
+            }
+        }
+
+        return dp[0][-1+1];
+    }
+    
+}
+                                                                                          APPROACH 4: SPACE OPTIMISATION
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n)
+class Solution {
+    //space optimisation
+    //tc= O(n*n)
+    //sc= O(n)
+    public int lengthOfLIS(int[] nums) {
+        
+        int n= nums.length;
+
+        int[] ahead= new int[n+1];
+        int[] cur= new int[n+1];
+
+        for(int ind=n-1; ind>=0; ind--){
+            for(int prev_ind= ind-1; prev_ind>=-1; prev_ind--){
+                int len=0;
+                len= ahead[prev_ind+1] ;
+                if(prev_ind == -1 || nums[ind]>nums[prev_ind]){
+                    len= Math.max(len, 1+ ahead[ind+1] );
+                }
+                cur[prev_ind+1]= len;
+            }
+            ahead= cur;
+        }
+
+        return ahead[-1+1];
+    }
+    
+}
+
+                                                                                          APPROACH 5: TO KEEP A TRACK TO PRINT LIS
+                                                                                          TIME COMPLEXITY: O(n*n)
+                                                                                          SPACE COMPLEXITY: O(n)
+class Solution {
+    //approach -2
+    //tc= O(n*n)
+    //sc= O(n)
+    public int lengthOfLIS(int[] nums) {
+        
+        int n= nums.length;
+
+        int[] dp= new int[n+1];
+        int maxi=0;
+
+        for(int i=0; i<n; i++){
+            dp[i]=1;
+            for(int prev=0; prev<i; prev++){
+                if(nums[prev] < nums[i]){
+                    dp[i]= Math.max(dp[i], 1+dp[prev]);
+                }
+            }
+            maxi= Math.max(maxi,dp[i]);
+        }
+
+        return maxi;
+    }
+    
+}
+                                                                                          APPROACH 6: BINARY SEARCH
+                                                                                          TIME COMPLEXITY: O(nlogn)
+                                                                                          SPACE COMPLEXITY: O(n)
+import java.util.*; 
+class Solution {
+    //approach -3 (binary search)
+    //tc= O(nlogn)
+    //sc= O(n)
+    public int lengthOfLIS(int[] nums) {
+        int n= nums.length;
+        List<Integer> temp= new ArrayList<>();
+        temp.add(nums[0]);
+
+        for(int i=1; i<n; i++){
+            if(nums[i]>temp.get(temp.size()-1)){
+                temp.add(nums[i]);
+            }
+            else{
+                int ind= Collections.binarySearch(temp, nums[i]);
+                if(ind<0)   ind= -(ind+1);
+                temp.set(ind, nums[i]);
+            }
+        }
+
+        return temp.size();
+    }
+    
+}
