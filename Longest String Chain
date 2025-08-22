@@ -1,0 +1,64 @@
+PROBLEM STATEMENT:
+You are given an array of words where each word consists of lowercase English letters.
+
+wordA is a predecessor of wordB if and only if we can insert exactly one letter anywhere in wordA without changing the order of the other characters to make it equal to wordB.
+
+For example, "abc" is a predecessor of "abac", while "cba" is not a predecessor of "bcad".
+A word chain is a sequence of words [word1, word2, ..., wordk] with k >= 1, where word1 is a predecessor of word2, word2 is a predecessor of word3, and so on. A single word is trivially a word chain with k == 1.
+
+Return the length of the longest possible word chain with words chosen from the given list of words.
+
+SOLUTION:
+
+                                                                 TIME COMPLEXITY: O(nlogn) for sorting + O(n^2 * L), where L is the average length of the strings (for compare function)
+                                                                  TIME COMPLEXITY: O(n)
+
+
+import java.util.*;
+class Solution {
+    //tc= O(nlogn) for sorting + O(n^2 * L), where L is the average length of the strings (for compare function)
+    //sc= O(n)
+    public int longestStrChain(String[] words) {
+        Arrays.sort(words, new Comparator<String>(){
+            public int compare(String s1, String s2){
+                return s1.length()-s2.length();
+            }
+        });
+        int n=words.length;
+        int[] dp= new int[n];
+        int maxi=0;
+
+        for(int i=0; i<n; i++){
+            dp[i]=1;
+            for(int prev=0; prev<i; prev++){
+                if(compare(words[prev], words[i]) && dp[i]<1+dp[prev]){
+                    dp[i]= 1+dp[prev];
+                }
+            }
+            maxi= Math.max(maxi, dp[i]);
+        }
+        return maxi;
+    }
+    public boolean compare(String prevString, String curString){
+        int m= prevString.length();
+        int n= curString.length();
+        if(m>=n || n-m >1)    return false;
+
+        int i=0,j=0;
+        while(i<m && j<n){
+            char ch1= prevString.charAt(i);
+            char ch2= curString.charAt(j);
+
+            if(ch1==ch2){
+                i++;
+                j++;
+            }
+            else{
+                j++;
+            }
+
+        }
+        if((i==m && j==n) || (i==m && j==n-1))    return true;
+        return false;
+    }
+}
