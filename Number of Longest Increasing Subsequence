@@ -1,0 +1,46 @@
+PROBLEM STATEMENT:
+Given an integer array nums, return the number of longest increasing subsequences.
+
+Notice that the sequence has to be strictly increasing.
+
+
+SOLUTION:  
+                                                                                TIME COMPLEXITY: O(n*n)
+                                                                                SPACE COMPLEXITY: 2*O(n)
+
+class Solution {
+    public int findNumberOfLIS(int[] nums) {
+        int n= nums.length;
+        int[] dp= new int[n];
+        int[] cnt= new int[n];
+        int maxLen=1;
+
+        for(int i=0; i<n; i++){
+            dp[i]=1;
+            cnt[i]=1;
+            for(int prev=0; prev<i; prev++){
+                if(nums[prev]<nums[i]){
+                if(dp[i]<1+dp[prev]){
+                    dp[i]= 1+dp[prev];
+                    cnt[i]= cnt[prev];
+                }
+                else if(dp[i]== 1+dp[prev]){
+                    cnt[i]+= cnt[prev];
+                }
+                }
+
+            }
+            maxLen= Math.max(maxLen, dp[i]);
+        }
+
+        int ans=0;
+        for(int i=0; i<n; i++){
+            if(dp[i]== maxLen){
+                ans+= cnt[i];
+            }
+        }
+
+        return ans;
+        
+    }
+}
