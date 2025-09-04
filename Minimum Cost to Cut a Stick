@@ -1,0 +1,115 @@
+PROBLEM STATEMENT:
+Given an integer array cuts where cuts[i] denotes a position you should perform a cut at.
+
+You should perform the cuts in order, you can change the order of the cuts as you wish.
+
+The cost of one cut is the length of the stick to be cut, the total cost is the sum of costs of all cuts. When you cut a stick, it will be split into two smaller sticks (i.e. the sum of their lengths is the length of the stick before the cut). Please refer to the first example for a better explanation.
+
+Return the minimum total cost of the cuts.
+
+SOLUTION:
+
+                                                                                  APPROACH 1: RECURSION
+                                                                                  TIME COMPLEXITY: O(2^m) 
+                                                                                  SPACE COMPLEXITY: O(m)
+class Solution {
+    //recursion
+    public int minCost(int n, int[] cuts) {
+        Arrays.sort(cuts);
+        List<Integer> cut= new ArrayList<>();
+        cut.add(0);
+        for(int pos: cuts){
+            cut.add(pos);
+        }
+        cut.add(n);
+
+        return f(1,cuts.length,cut);
+
+    }
+    public int f(int i, int j, List<Integer> cuts){
+        if(i>j) return 0;
+
+        int cost= Integer.MAX_VALUE;
+        for(int ind=i; ind<=j; ind++){
+            cost= Math.min(cost, cuts.get(j+1)-cuts.get(i-1)+f(i,ind-1,cuts)+ f(ind+1,j, cuts));
+        }
+
+        return cost;
+    }
+    
+}
+
+                                                                                  APPROACH 2: MEMOIZATION
+                                                                                  TIME COMPLEXITY: O(n*n)
+                                                                                  SPACE COMPLEXITY:  O(n*n)+ O(n*n)
+class Solution {
+    //memoization
+    public int minCost(int n, int[] cuts) {
+        Arrays.sort(cuts);
+        List<Integer> cut= new ArrayList<>();
+        cut.add(0);
+        for(int pos: cuts){
+            cut.add(pos);
+        }
+        cut.add(n);
+
+        int[][] dp= new int[n+1][n+1];
+        for(int i=0; i<dp.length; i++){
+            Arrays.fill(dp[i], -1);
+        }
+        return f(1,cuts.length,cut,dp);
+
+    }
+    public int f(int i, int j, List<Integer> cuts, int[][] dp){
+        if(i>j) return 0;
+
+        if(dp[i][j]!= -1)   return dp[i][j];
+
+        int cost= Integer.MAX_VALUE;
+        for(int ind=i; ind<=j; ind++){
+            cost= Math.min(cost, cuts.get(j+1)-cuts.get(i-1)+f(i,ind-1,cuts,dp)+ f(ind+1,j, cuts,dp));
+        }
+
+        return dp[i][j]= cost;
+    }
+    
+}
+
+                                                                                  APPROACH 3: TABULATION
+                                                                                  TIME COMPLEXITY: O(n^3)
+                                                                                  SPACE COMPLEXITY:  O(n^2) 
+class Solution {
+    //tabulation
+    //tc= O(n^3)
+    //sc= O(n^2) 
+    public int minCost(int n, int[] cuts) {
+        Arrays.sort(cuts);
+        List<Integer> cut= new ArrayList<>();
+        cut.add(0);
+        for(int pos: cuts){
+            cut.add(pos);
+        }
+        cut.add(n);
+        
+        int c= cut.size();
+
+
+        int[][] dp= new int[c][c];
+        
+        for(int i=c-1; i>=0; i--){
+            for(int j=i+1; j<c; j++){
+                if(i>j) continue;
+                int cost= Integer.MAX_VALUE;
+                for(int ind=i+1; ind<j; ind++){
+                    cost= Math.min(cost, cut.get(j)-cut.get(i)+ dp[i][ind] + dp[ind][j] );
+                }
+
+                dp[i][j] = (cost == Integer.MAX_VALUE) ? 0 : cost;
+            }
+        }
+        return dp[0][c-1];
+
+    }
+    
+    
+}
